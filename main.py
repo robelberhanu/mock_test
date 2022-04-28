@@ -1,12 +1,13 @@
 from typing import Optional
+from sqlite3 import Binary
 from unicodedata import name
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, Depends
+from fastapi.responses import HTMLResponse
 import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session 
-from fastapi import FastAPI, Request, Body, File, UploadFile, Form
+from fastapi import FastAPI, Request, Body, File, UploadFile, Form, Depends
 
 app = FastAPI()
 
@@ -32,24 +33,37 @@ class FormData(BaseModel):
     first_name : str
     last_name : str
     birthday : str
-    filename : str
+    # filename : bytes
 
 # render home page
 @app.get("/home", response_class=HTMLResponse)
 def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request":request})
 
+@app.get("/")
+def read_api(db: Session = Depends(get_db)):
+    return db.query(models.Info).all()
+
 
 # Endpoit for submitting form data
 @app.post("/submitform")
-async def handle_form(first_name: str = Form(...), last_name: str = Form(...), birthday: str = Form(...), filename: str = Form(...)):
-    mylist.append(first_name)
-    mylist.append(last_name)
-    mylist.append(birthday)
-    mylist.append(filename)
-    print(mylist)
-    print(type(birthday))
-    print(type(filename))
+def add_info(formData: FormData, filename: UploadFile = File(...),db: Session = Depends(get_db)):
+    info_model = models.Info()
+    info_model.first_name = formData.first_name
+    info_model.last_name = formData.last_name
+    info_model.birthday = formData.birthday
+    # info_model.file = formData.filename
+
+    db.add(info_model)
+    db.add(filename)
+    db.commit()
+
+    return formData
+
+
+
+
+
 
 
 
