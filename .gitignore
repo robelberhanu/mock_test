@@ -1,9 +1,9 @@
+__pycache__
+__pycache__/main.cpython-38.pyc
 .idea
 .ipynb_checkpoints
 .mypy_cache
 .vscode
-__pycache__
-__pycache__/main.cpython-38.pyc
 .pytest_cache
 htmlcov
 dist
