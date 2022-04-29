@@ -8,6 +8,7 @@ import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session 
 from fastapi import FastAPI, Request, Body, File, UploadFile, Form, Depends
+import plot
 
 app = FastAPI()
 
@@ -26,8 +27,6 @@ def get_db():
     finally:
         db.close()
 
-
-
 # structure user input
 class FormData(BaseModel):
     first_name : str
@@ -40,6 +39,7 @@ class FormData(BaseModel):
 def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request":request})
 
+# Endpoit to read database
 @app.get("/")
 def read_api(db: Session = Depends(get_db)):
     return db.query(models.Info).all()
